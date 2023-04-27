@@ -29,9 +29,10 @@ module laplace2d
   public :: calcNext
   public :: swap
   public :: dealloc
+      integer, parameter :: fp_kind=kind(1.0d0)
   contains
     subroutine initialize(A, Anew, m, n)
-      integer, parameter :: fp_kind=kind(1.0d0)
+      !integer, parameter :: fp_kind=kind(1.0d0)
       real(fp_kind),allocatable,intent(out)   :: A(:,:)
       real(fp_kind),allocatable,intent(out)   :: Anew(:,:)
       integer,intent(in)          :: m, n
@@ -46,7 +47,7 @@ module laplace2d
     end subroutine initialize
 
     function calcNext(A, Anew, m, n)
-      integer, parameter          :: fp_kind=kind(1.0d0)
+      !integer, parameter          :: fp_kind=kind(1.0d0)
       real(fp_kind),intent(inout) :: A(0:n-1,0:m-1)
       real(fp_kind),intent(inout) :: Anew(0:n-1,0:m-1)
       integer,intent(in)          :: m, n
@@ -55,6 +56,7 @@ module laplace2d
 
       error=0.0_fp_kind
 
+      !$acc parallel loop reduction(max:error)
       do j=1,m-2
         do i=1,n-2
           Anew(i,j) = 0.25_fp_kind * ( A(i+1,j  ) + A(i-1,j  ) + &
@@ -66,12 +68,13 @@ module laplace2d
     end function calcNext
 
     subroutine swap(A, Anew, m, n)
-      integer, parameter        :: fp_kind=kind(1.0d0)
+      !integer, parameter        :: fp_kind=kind(1.0d0)
       real(fp_kind),intent(out) :: A(0:n-1,0:m-1)
       real(fp_kind),intent(in)  :: Anew(0:n-1,0:m-1)
       integer,intent(in)        :: m, n
       integer                   :: i, j
 
+      !$acc parallel loop
       do j=1,m-2
         do i=1,n-2
           A(i,j) = Anew(i,j)
@@ -80,7 +83,7 @@ module laplace2d
     end subroutine swap
 
     subroutine dealloc(A, Anew)
-      integer, parameter :: fp_kind=kind(1.0d0)
+      !integer, parameter :: fp_kind=kind(1.0d0)
       real(fp_kind),allocatable,intent(in) :: A
       real(fp_kind),allocatable,intent(in) :: Anew
 
